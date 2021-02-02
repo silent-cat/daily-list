@@ -1,7 +1,6 @@
 const db = require("./db.js");
 
 const inquirer = require("inquirer");
-const { action } = require("commander");
 module.exports.add = async (name) => {
   //读
   const list = await db.read();
@@ -19,13 +18,20 @@ module.exports.showAll = async () => {
   const list = await db.read();
   printTasks(list);
 };
+function quit(list) {
+  printTasks(list);
+}
 function markAsDown(list, index) {
   list[index].status = true;
+  console.log("已完成");
   db.write(list);
+  printTasks(list);
 }
 function markAsUndown(list, index) {
   list[index].status = false;
+  console.log("未完成");
   db.write(list);
+  printTasks(list);
 }
 function updateName(list, index) {
   inquirer
@@ -37,12 +43,16 @@ function updateName(list, index) {
     })
     .then((answer) => {
       list[index].name = answer.name;
+      console.log("修改成功");
       db.write(list);
+      printTasks(list);
     });
 }
 function remove(list, index) {
   list.splice(index, 1);
+  console.log("删除成功");
   db.write(list);
+  printTasks(list);
 }
 // askForCreateTask
 function askForCreateTask(list) {
@@ -50,19 +60,24 @@ function askForCreateTask(list) {
     .prompt({
       type: "input",
       name: "name",
-      message: "输入任务标题",
+      message: "输入任务",
     })
     .then((answer) => {
       list.push({
         name: answer.name,
         status: false,
       });
+      console.log("添加成功");
       db.write(list);
+      // -------
+      printTasks(list);
+      // ----------------------
     });
 }
 // askForActions
 function askForActions(list, index) {
   const actions = {
+    quit,
     markAsDown,
     markAsUndown,
     updateName,
@@ -77,7 +92,7 @@ function askForActions(list, index) {
         { name: "退出", value: "quit" },
         { name: "已完成", value: "markAsDown" },
         { name: "未完成", value: "markAsUndown" },
-        { name: "改标题", value: "updateName" },
+        { name: "修改任务", value: "updateName" },
         { name: "删除", value: "remove" },
       ],
     })
@@ -93,7 +108,7 @@ function printTasks(list) {
       {
         type: "list",
         name: "index",
-        message: "选择你要操作的任务",
+        message: "选择操作",
         choices: [
           { name: "退出", value: "-1" },
           ...list.map((task, index) => {
@@ -102,7 +117,7 @@ function printTasks(list) {
               value: index.toString(),
             };
           }),
-          { name: "添加任务", value: "-2" },
+          { name: "添加", value: "-2" },
         ],
       },
     ])
