@@ -1,4 +1,4 @@
-# daily-list 一款基于node开发的命令行小工具
+# daily-list 一款基于node.js开发的命令行小工具
 ## 1.全局安装
 ```
 npm i -g daily-list@1.0.0
